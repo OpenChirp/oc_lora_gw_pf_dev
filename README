@@ -1,17 +1,16 @@
-# PIOUT
+# Pins
 
 ## Blowfish
-	RESET_PIN  5 ? GPIO5(pin29)
+	- RESET_PIN 5
 	- GPS Reset line - run to GPIO6(pin31)	
 	- Built in SPI0 (pin24,21,19,23) to SX1301
 	- GPS UART (UART0-pin8,10)
 	- 1PPS is connected to the GPIO4-pin7
 
 ## RAK831
-	RESET_PIN 17 (13)
-	SPI0 (24, 21, 19, 23)
-	RST_PIN 22
-
+	- RESET_PIN 17 (13)
+	- SPI0 (24, 21, 19, 23)
+	- RST_PIN 22
 
 ## RHF0M301
-	RESET_PIN 7
+	- RESET_PIN 7
