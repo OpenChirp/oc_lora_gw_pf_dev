@@ -1,0 +1,10 @@
+reception time delay for a 53 byte packet sf7
+
+cr 000  4/4   93.016 ms    base 
+cr 001  4/5  109.400 ms    base + 17.6 %
+cr 010  4/6  125.824 ms    base + 35.3 %
+cr 011  4/7  142.176 ms    base + 52.9 %
+cr 100  4/8  158.556 ms    base + 70.5 %
+cr 101  4/9  158.592 ms    base + 70.5 %
+cr 110 4/10  158.584 ms    base + 70.5 %
+cr 111 4/11  158.536 ms    base + 70.5 %
