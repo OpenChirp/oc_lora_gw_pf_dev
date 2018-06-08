@@ -16,12 +16,14 @@ Maintainer: Sylvain Miermont
 
 /* -------------------------------------------------------------------------- */
 /* --- DEPENDANCIES --------------------------------------------------------- */
+#define _POSIX_C_SOURCE 199309L
 
 #include <stdint.h>     /* C99 types */
 #include <stdbool.h>    /* bool type */
 #include <stdio.h>      /* printf fprintf */
 #include <string.h>     /* memcpy */
 #include <math.h>       /* pow, cell */
+#include <time.h>
 
 #include "loragw_reg.h"
 #include "loragw_hal.h"
@@ -1114,6 +1116,13 @@ int lgw_receive(uint8_t max_pkt, struct lgw_pkt_rx_s *pkt_data) {
     uint32_t timestamp_correction; /* correction to account for processing delay */
     uint32_t sf, cr, bw_pow, crc_en, ppm; /* used to calculate timestamp correction */
 
+    long ts_ns; /* Timestamp Variables */
+    time_t ts_s;
+    char ts_bufi[24];
+    char ts_buff[10];
+    struct timespec ts_spec;
+    struct tm *ts_timeinfo;
+
     /* check if the concentrator is running */
     if (lgw_is_started == false) {
         DEBUG_MSG("ERROR: CONCENTRATOR IS NOT RUNNING, START IT BEFORE RECEIVING\n");
@@ -1174,6 +1183,17 @@ int lgw_receive(uint8_t max_pkt, struct lgw_pkt_rx_s *pkt_data) {
         DEBUG_PRINTF("[%d %d]\n", p->if_chain, ifmod);
 
         // Test
+
+	// Timestamp
+	clock_gettime(CLOCK_REALTIME, &ts_spec);
+    	ts_s  = ts_spec.tv_sec;
+    	ts_ns = ts_spec.tv_nsec;
+    	ts_timeinfo = localtime(&ts_s);
+
+    	strftime(ts_bufi, sizeof ts_bufi, "%F %T", ts_timeinfo);
+    	strftime(ts_buff, sizeof ts_buff, "%z", ts_timeinfo);
+    	printf("|%s.%09ld %s| ", ts_bufi, ts_ns, ts_buff);
+
         printf("size_bytes:%i ", p->size);
 
         p->rf_chain = (uint8_t)if_rf_chain[p->if_chain];

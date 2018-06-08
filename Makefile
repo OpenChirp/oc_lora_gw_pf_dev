@@ -1,5 +1,5 @@
 NAME=oc-lora-gw-pf-dev
-VERSION=0.02-dev
+VERSION=0.03-dev
 MAINTAINER='Artur Balanuta'
 DEPS :=
 WORK_DIR=src
@@ -68,3 +68,6 @@ package:
 	echo "\n"; )
 	mv $(NAME)_$(VERSION)-*.deb build/
 
+clean:
+	@$(foreach board, $(BOARDS), \
+	rm -R src/$(board)/opt/oc-lora-gw-pf-dev/bin/;)

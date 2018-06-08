@@ -1,3 +1,4 @@
 build/*.deb
 src/Blowfish/opt/oc-lora-gw-pf-dev/bin/
 src/Blowfish/opt/oc-lora-gw-pf-dev/bin/*
+lora_gateway/libloragw/libloragw.a
