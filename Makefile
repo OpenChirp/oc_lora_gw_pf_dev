@@ -68,6 +68,6 @@ package:
 	echo "\n"; )
 	mv $(NAME)_$(VERSION)-*.deb build/
 
-clean:
+rm:
 	@$(foreach board, $(BOARDS), \
 	rm -R src/$(board)/opt/oc-lora-gw-pf-dev/bin/;)
