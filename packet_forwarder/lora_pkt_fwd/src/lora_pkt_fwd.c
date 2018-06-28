@@ -123,7 +123,7 @@ volatile bool exit_sig = false; /* 1 -> application terminates cleanly (shut dow
 volatile bool quit_sig = false; /* 1 -> application terminates without shutting down the hardware */
 
 /* packets filtering configuration variables */
-static bool fwd_valid_pkt = true; /* packets with PAYLOAD crc OK are forwarded */
+static bool fwd_valid_pkt = true; /* packets with PAYLOAD CRC OK are forwarded */
 static bool fwd_error_pkt = false; /* packets with PAYLOAD CRC ERROR are NOT forwarded */
 static bool fwd_nocrc_pkt = false; /* packets with NO PAYLOAD CRC are NOT forwarded */
 
@@ -1557,7 +1557,7 @@ void thread_up(void) {
             switch(p->status) {
                 case STAT_CRC_OK:
                     meas_nb_rx_ok += 1;
-                    //printf( "\nINFO: Received pkt from mote: %08X (fcnt=%u)\n", mote_addr, mote_fcnt );
+                    printf( "\nINFO: Received pkt from mote: %08X (fcnt=%u)\n", mote_addr, mote_fcnt );
                     if (!fwd_valid_pkt) {
                         pthread_mutex_unlock(&mx_meas_up);
                         continue; /* skip that packet */
@@ -1698,10 +1698,10 @@ void thread_up(void) {
                         buff_index += 13;
                         break;
                     default:
-                        //MSG("ERROR: [up] lora packet with unknown datarate\n");
+                        MSG("ERROR: [up] lora packet with unknown datarate\n");
                         memcpy((void *)(buff_up + buff_index), (void *)",\"datr\":\"SF?", 12);
                         buff_index += 12;
-                        //exit(EXIT_FAILURE);
+                        exit(EXIT_FAILURE);
                 }
                 switch (p->bandwidth) {
                     case BW_125KHZ:
@@ -1717,7 +1717,7 @@ void thread_up(void) {
                         buff_index += 6;
                         break;
                     default:
-                        //  MSG("ERROR: [up] lora packet with unknown bandwidth\n");
+                        MSG("ERROR: [up] lora packet with unknown bandwidth\n");
                         memcpy((void *)(buff_up + buff_index), (void *)"BW?\"", 4);
                         buff_index += 4;
                         exit(EXIT_FAILURE);
@@ -1796,24 +1796,6 @@ void thread_up(void) {
                 MSG("ERROR: [up] bin_to_b64 failed line %u\n", (__LINE__ - 5));
                 exit(EXIT_FAILURE);
             }
-
-            /* Add more parameters */
-            j = snprintf((char *)(buff_up + buff_index), TX_BUFF_SIZE-buff_index, ",\"snr_min\":%.2f,\"snr_min\":%.2f", p->snr_min, p->snr_max);
-            if (j > 0) {
-                buff_index += j;
-            } else {
-                MSG("ERROR: [up] snprintf failed line %u\n", (__LINE__ - 4));
-                exit(EXIT_FAILURE);
-            }
-
-	    j = snprintf((char *)(buff_up + buff_index), TX_BUFF_SIZE-buff_index, ",\"crc\":%02X", p->crc);
-            if (j > 0) {
-                buff_index += j;
-            } else {
-                MSG("ERROR: [up] snprintf failed line %u\n", (__LINE__ - 4));
-                exit(EXIT_FAILURE);
-            }
-
             buff_up[buff_index] = '"';
             ++buff_index;
 
@@ -1862,7 +1844,7 @@ void thread_up(void) {
         ++buff_index;
         buff_up[buff_index] = 0; /* add string terminator, for safety */
 
-        //printf("\nJSON up: %s\n", (char *)(buff_up + 12)); /* DEBUG: display JSON payload */
+        printf("\nJSON up: %s\n", (char *)(buff_up + 12)); /* DEBUG: display JSON payload */
 
         /* send datagram to server */
         send(sock_up, (void *)buff_up, buff_index, 0);
@@ -1888,7 +1870,7 @@ void thread_up(void) {
                 //MSG("WARNING: [up] ignored out-of sync ACK packet\n");
                 continue;
             } else {
-                //MSG("INFO: [up] PUSH_ACK received in %i ms\n", (int)(1000 * difftimespec(recv_time, send_time)));
+                MSG("INFO: [up] PUSH_ACK received in %i ms\n", (int)(1000 * difftimespec(recv_time, send_time)));
                 meas_up_ack_rcv += 1;
                 break;
             }
@@ -2233,7 +2215,7 @@ void thread_down(void) {
                         pthread_mutex_lock(&mx_meas_dw);
                         meas_dw_ack_rcv += 1;
                         pthread_mutex_unlock(&mx_meas_dw);
-                        //MSG("INFO: [down] PULL_ACK received in %i ms\n", (int)(1000 * difftimespec(recv_time, send_time)));
+                        MSG("INFO: [down] PULL_ACK received in %i ms\n", (int)(1000 * difftimespec(recv_time, send_time)));
                     }
                 } else { /* out-of-sync token */
                     MSG("INFO: [down] received out-of-sync ACK\n");
@@ -2293,7 +2275,7 @@ void thread_down(void) {
                             pthread_mutex_unlock(&mx_timeref);
                         } else {
                             pthread_mutex_unlock(&mx_timeref);
-                            //MSG("WARNING: [down] no valid GPS time reference yet, impossible to send packet on specific GPS time, TX aborted\n");
+                            MSG("WARNING: [down] no valid GPS time reference yet, impossible to send packet on specific GPS time, TX aborted\n");
                             json_value_free(root_val);
 
                             /* send acknoledge datagram to server */
@@ -2301,7 +2283,7 @@ void thread_down(void) {
                             continue;
                         }
                     } else {
-                        //MSG("WARNING: [down] GPS disabled, impossible to send packet on specific GPS time, TX aborted\n");
+                        MSG("WARNING: [down] GPS disabled, impossible to send packet on specific GPS time, TX aborted\n");
                         json_value_free(root_val);
 
                         /* send acknoledge datagram to server */
@@ -2683,7 +2665,7 @@ static void gps_process_sync(void) {
 
     /* get GPS time for synchronization */
     if (i != LGW_GPS_SUCCESS) {
-        //MSG("WARNING: [gps] could not get GPS time from GPS\n");
+        MSG("WARNING: [gps] could not get GPS time from GPS\n");
         return;
     }
 
@@ -2692,7 +2674,7 @@ static void gps_process_sync(void) {
     i = lgw_get_trigcnt(&trig_tstamp);
     pthread_mutex_unlock(&mx_concent);
     if (i != LGW_HAL_SUCCESS) {
-        //MSG("WARNING: [gps] failed to read concentrator timestamp\n");
+        MSG("WARNING: [gps] failed to read concentrator timestamp\n");
         return;
     }
 
@@ -2701,7 +2683,7 @@ static void gps_process_sync(void) {
     i = lgw_gps_sync(&time_reference_gps, trig_tstamp, utc, gps_time);
     pthread_mutex_unlock(&mx_timeref);
     if (i != LGW_GPS_SUCCESS) {
-        //MSG("WARNING: [gps] GPS out of sync, keeping previous time reference\n");
+        MSG("WARNING: [gps] GPS out of sync, keeping previous time reference\n");
     }
 }
 

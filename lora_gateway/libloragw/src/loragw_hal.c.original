@@ -16,14 +16,12 @@ Maintainer: Sylvain Miermont
 
 /* -------------------------------------------------------------------------- */
 /* --- DEPENDANCIES --------------------------------------------------------- */
-#define _POSIX_C_SOURCE 199309L
 
 #include <stdint.h>     /* C99 types */
 #include <stdbool.h>    /* bool type */
 #include <stdio.h>      /* printf fprintf */
 #include <string.h>     /* memcpy */
 #include <math.h>       /* pow, cell */
-#include <time.h>
 
 #include "loragw_reg.h"
 #include "loragw_hal.h"
@@ -170,8 +168,6 @@ void lgw_constant_adjust(void);
 
 int32_t lgw_sf_getval(int x);
 int32_t lgw_bw_getval(int x);
-
-int32_t raw_timestamp_old = 0;
 
 /* -------------------------------------------------------------------------- */
 /* --- PRIVATE FUNCTIONS DEFINITION ----------------------------------------- */
@@ -1116,13 +1112,6 @@ int lgw_receive(uint8_t max_pkt, struct lgw_pkt_rx_s *pkt_data) {
     uint32_t timestamp_correction; /* correction to account for processing delay */
     uint32_t sf, cr, bw_pow, crc_en, ppm; /* used to calculate timestamp correction */
 
-    long ts_ns; /* Timestamp Variables */
-    time_t ts_s;
-    char ts_bufi[24];
-    char ts_buff[10];
-    struct timespec ts_spec;
-    struct tm *ts_timeinfo;
-
     /* check if the concentrator is running */
     if (lgw_is_started == false) {
         DEBUG_MSG("ERROR: CONCENTRATOR IS NOT RUNNING, START IT BEFORE RECEIVING\n");
@@ -1163,6 +1152,8 @@ int lgw_receive(uint8_t max_pkt, struct lgw_pkt_rx_s *pkt_data) {
             break;
         }
 
+        DEBUG_PRINTF("FIFO content: %x %x %x %x %x\n", buff[0], buff[1], buff[2], buff[3], buff[4]);
+
         p->size = buff[4];
         sz = p->size;
         stat_fifo = buff[3]; /* will be used later, need to save it before overwriting buff */
@@ -1182,27 +1173,9 @@ int lgw_receive(uint8_t max_pkt, struct lgw_pkt_rx_s *pkt_data) {
         ifmod = ifmod_config[p->if_chain];
         DEBUG_PRINTF("[%d %d]\n", p->if_chain, ifmod);
 
-        // Test
-
-	// Timestamp
-	clock_gettime(CLOCK_REALTIME, &ts_spec);
-    	ts_s  = ts_spec.tv_sec;
-    	ts_ns = ts_spec.tv_nsec;
-    	ts_timeinfo = localtime(&ts_s);
-
-    	strftime(ts_bufi, sizeof ts_bufi, "%F %T", ts_timeinfo);
-    	strftime(ts_buff, sizeof ts_buff, "%z", ts_timeinfo);
-    	printf("# OPR |%s.%09ld %s| ", ts_bufi, ts_ns, ts_buff);
-
-        printf("size_bytes:%i ", p->size);
-
         p->rf_chain = (uint8_t)if_rf_chain[p->if_chain];
         p->freq_hz = (uint32_t)((int32_t)rf_rx_freq[p->rf_chain] + if_freq[p->if_chain]);
         p->rssi = (float)buff[sz+5] + rf_rssi_offset[p->rf_chain];
-
-        // Test
-        printf("ch:%02i Freq:%03.2f Rssi:%04.0f ", p->rf_chain, (float)p->freq_hz/1000000, p->rssi - RSSI_MULTI_BIAS);
-
 
         if ((ifmod == IF_LORA_MULTI) || (ifmod == IF_LORA_STD)) {
             DEBUG_MSG("Note: LoRa packet\n");
@@ -1210,32 +1183,23 @@ int lgw_receive(uint8_t max_pkt, struct lgw_pkt_rx_s *pkt_data) {
                 case 5:
                     p->status = STAT_CRC_OK;
                     crc_en = 1;
-                    // Test
-                    printf("crc: 1 ");
                     break;
                 case 7:
                     p->status = STAT_CRC_BAD;
                     crc_en = 1;
-                    printf("crc:-1 ");
                     break;
                 case 1:
                     p->status = STAT_NO_CRC;
                     crc_en = 0;
-                    printf("crc: 0 ");
                     break;
                 default:
                     p->status = STAT_UNDEFINED;
                     crc_en = 0;
-                    printf("crc: ? ");
             }
             p->modulation = MOD_LORA;
             p->snr = ((float)((int8_t)buff[sz+2]))/4;
             p->snr_min = ((float)((int8_t)buff[sz+3]))/4;
             p->snr_max = ((float)((int8_t)buff[sz+4]))/4;
-
-            // Test
-            printf("snr:%06.2f min_snr:%06.2f max_snr:%06.2f ", p->snr, p->snr_min, p->snr_max);
-
             if (ifmod == IF_LORA_MULTI) {
                 p->bandwidth = BW_125KHZ; /* fixed in hardware */
             } else {
@@ -1243,13 +1207,13 @@ int lgw_receive(uint8_t max_pkt, struct lgw_pkt_rx_s *pkt_data) {
             }
             sf = (buff[sz+1] >> 4) & 0x0F;
             switch (sf) {
-                case 7: p->datarate = DR_LORA_SF7; printf("sf: 7 "); break;
-                case 8: p->datarate = DR_LORA_SF8; printf("sf: 8 "); break;
-                case 9: p->datarate = DR_LORA_SF9; printf("sf: 9 "); break;
-                case 10: p->datarate = DR_LORA_SF10; printf("sf:10 "); break;
-                case 11: p->datarate = DR_LORA_SF11; printf("sf:11 "); break;
-                case 12: p->datarate = DR_LORA_SF12; printf("sf:12 "); break;
-                default: p->datarate = DR_UNDEFINED; printf("sf:err ");
+                case 7: p->datarate = DR_LORA_SF7; break;
+                case 8: p->datarate = DR_LORA_SF8; break;
+                case 9: p->datarate = DR_LORA_SF9; break;
+                case 10: p->datarate = DR_LORA_SF10; break;
+                case 11: p->datarate = DR_LORA_SF11; break;
+                case 12: p->datarate = DR_LORA_SF12; break;
+                default: p->datarate = DR_UNDEFINED;
             }
             cr = (buff[sz+1] >> 1) & 0x07;
             switch (cr) {
@@ -1259,21 +1223,13 @@ int lgw_receive(uint8_t max_pkt, struct lgw_pkt_rx_s *pkt_data) {
                 case 4: p->coderate = CR_LORA_4_8; break;
                 default: p->coderate = CR_UNDEFINED;
             }
-            printf("cr:4/%d ", cr+4);
 
             /* determine if 'PPM mode' is on, needed for timestamp correction */
             if (SET_PPM_ON(p->bandwidth,p->datarate)) {
                 ppm = 1;
-                printf("ppm:1 ");
             } else {
-                printf("ppm:0 ");
                 ppm = 0;
             }
-            
-
-
-
-
 
             /* timestamp correction code, base delay */
             if (ifmod == IF_LORA_STD) { /* if packet was received on the stand-alone LoRa modem */
@@ -1364,19 +1320,6 @@ int lgw_receive(uint8_t max_pkt, struct lgw_pkt_rx_s *pkt_data) {
         raw_timestamp = (uint32_t)buff[sz+6] + ((uint32_t)buff[sz+7] << 8) + ((uint32_t)buff[sz+8] << 16) + ((uint32_t)buff[sz+9] << 24);
         p->count_us = raw_timestamp - timestamp_correction;
         p->crc = (uint16_t)buff[sz+10] + ((uint16_t)buff[sz+11] << 8);
-        
-        printf("crc:%04X ", p->crc);
-        printf("tmsp:%010u ", raw_timestamp);
-        printf("diff:%06u ", raw_timestamp - raw_timestamp_old);
-        raw_timestamp_old = raw_timestamp;
-        printf("mID:%02X ", buff[sz+12]);
-        //printf("rxMaxBinPos:%03i ", (uint16_t)buff[sz+13] + ((uint16_t)buff[sz+14] << 8) );
-        printf("rxCorrSNR:%02i ", buff[sz+15]);
-
-        for(int i = 0; i < p->size; i++)
-            printf("%02X", buff[i]);
-        
-        printf("\n");
 
         /* advance packet FIFO */
         lgw_reg_w(LGW_RX_PACKET_DATA_FIFO_NUM_STORED, 0);
