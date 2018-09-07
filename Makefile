@@ -23,6 +23,12 @@ COMMON_FPM_ARGS=\
 
 .PHONY: package
 
+
+install_fpm:
+	sudo apt-get install ruby ruby-dev rubygems:any build-essential
+	sudo gem install --no-ri --no-rdoc fpm
+	fpm --version
+
 build: force
 
 	@echo "Compiling source"
