@@ -15,6 +15,7 @@ WorkingDirectory=/opt/oc-lora-gw-pf-dev/configs
 ExecStartPre=/opt/oc-lora-gw-pf-dev/scripts/gwrst.sh
 ExecStartPre=/opt/oc-lora-gw-pf-dev/scripts/update_gwid.sh /opt/oc-lora-gw-pf-dev/configs/local_conf.json
 ExecStart=/opt/oc-lora-gw-pf-dev/bin/lora_pkt_fwd
+Nice=-20
 
 [Install]
 WantedBy=multi-user.target
