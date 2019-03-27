@@ -3,7 +3,7 @@ VERSION=0.05-dev
 MAINTAINER='Artur Balanuta'
 DEPS :=
 WORK_DIR=src
-BOARDS := RAK831 RHF0M301 Blowfish
+BOARDS := RAK2243 RAK831 RHF0M301 Blowfish
 DESCRIPTION='Openchirp LoRa gateway Packet Forwarder'
 
 POSTINSTALL_SCRIPT=deb/post-install.sh
@@ -21,7 +21,7 @@ COMMON_FPM_ARGS=\
 	--config-files=/opt/$(NAME)/ \
 	--verbose
 
-.PHONY: package
+default: build package
 
 
 install_fpm:
