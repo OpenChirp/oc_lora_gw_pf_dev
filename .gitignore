@@ -11,3 +11,8 @@ lora_gateway/util_pkt_logger/util_pkt_logger
 lora_gateway/util_tx_continuous/util_tx_continuous
 lora_gateway/util_tx_test/util_tx_test
 packet_forwarder/lora_pkt_fwd/lora_pkt_fwd
+lora_gateway/util_spi_stress/util_spi_stress
+lora_gateway/libloragw/test_loragw_reg
+lora_gateway/libloragw/test_loragw_spi
+lora_gateway/util_lbt_test/util_lbt_test
+lora_gateway/util_spectral_scan/util_spectral_scan

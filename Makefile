@@ -25,7 +25,7 @@ COMMON_FPM_ARGS=\
 
 
 install_fpm:
-	sudo apt-get install ruby ruby-dev rubygems:any build-essential
+	sudo apt-get install ruby2.3 ruby2.3-dev rubygems:any build-essential
 	sudo gem install --no-ri --no-rdoc fpm
 	fpm --version
 
