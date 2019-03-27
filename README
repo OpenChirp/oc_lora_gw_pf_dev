@@ -4,6 +4,12 @@
 
 
 ```
+#RAK2243
+curl -s https://api.github.com/repos/OpenChirp/oc_lora_gw_pf_dev/releases/latest \
+| grep "browser_download_url.*RAK2243.*deb" \
+| cut -d : -f 2,3 \
+| tr -d \" \
+| wget -i -
 
 #RAK831
 curl -s https://api.github.com/repos/OpenChirp/oc_lora_gw_pf_dev/releases/latest \
@@ -28,14 +34,11 @@ curl -s https://api.github.com/repos/OpenChirp/oc_lora_gw_pf_dev/releases/latest
 
 
 sudo apt update
-sudo dpkg -i oc-lora-gw-pf-dev_*.deb
+sudo dpkg -i oc-lora-gw-pf-dev_*.debsudo dpkg -i oc-lora-gw-pf-dev_*.deb
 sudo apt-get install -fy
 rm oc-lora-gw-pf-dev*.deb
 
 ```
-
-
-
 
 # Pins
 
@@ -45,6 +48,9 @@ rm oc-lora-gw-pf-dev*.deb
 	- Built in SPI0 (pin24,21,19,23) to SX1301
 	- GPS UART (UART0-pin8,10)
 	- 1PPS is connected to the GPIO4-pin7
+
+## RAK2243
+	- RESET_PIN 17 (13)
 
 ## RAK831
 	- RESET_PIN 17 (13)
