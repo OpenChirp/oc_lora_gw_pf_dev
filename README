@@ -4,9 +4,9 @@
 
 
 ```
-#RAK2243
+#RAK2245
 curl -s https://api.github.com/repos/OpenChirp/oc_lora_gw_pf_dev/releases/latest \
-| grep "browser_download_url.*RAK2243.*deb" \
+| grep "browser_download_url.*RAK2245.*deb" \
 | cut -d : -f 2,3 \
 | tr -d \" \
 | wget -i -

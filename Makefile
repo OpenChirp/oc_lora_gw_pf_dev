@@ -3,8 +3,9 @@ VERSION=0.05-dev
 MAINTAINER='Artur Balanuta'
 DEPS :=
 WORK_DIR=src
-BOARDS := RAK2243 RAK831 RHF0M301 Blowfish
+BOARDS := RAK2245 RAK831 RHF0M301 Blowfish
 DESCRIPTION='Openchirp LoRa gateway Packet Forwarder'
+SPI_SPEEDs = 6500000 2000000
 
 POSTINSTALL_SCRIPT=deb/post-install.sh
 PREINSTALL_SCRIPT=deb/pre-install.sh
