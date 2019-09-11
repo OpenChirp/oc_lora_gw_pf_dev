@@ -1,0 +1,1 @@
+docker run --rm -it -v `pwd`/..:/build pi-cross-compile-with-fpm /bin/bash
