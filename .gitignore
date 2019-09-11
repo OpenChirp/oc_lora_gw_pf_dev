@@ -20,3 +20,6 @@ lora_gateway/util_lbt_test/util_lbt_test
 lora_gateway/util_spectral_scan/util_spectral_scan
 
 packet_forwarder/lora_pkt_fwd/lora_pkt_fwd
+packet_forwarder/util_ack/util_ack
+packet_forwarder/util_sink/util_sink
+packet_forwarder/util_tx_test/util_tx_test
