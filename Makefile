@@ -3,9 +3,11 @@ VERSION=0.05-dev
 MAINTAINER='Artur Balanuta'
 DEPS :=
 WORK_DIR=src
-BOARDS := RAK2245 RAK831 RHF0M301 Blowfish
 DESCRIPTION='Openchirp LoRa gateway Packet Forwarder'
-SPI_SPEEDs = 6500000 2000000
+
+ARCH_FPM=armhf
+# ARCH=arm
+# CROSS_COMPILE=/pitools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian-x64/bin/arm-linux-gnueabihf-
 
 POSTINSTALL_SCRIPT=deb/post-install.sh
 PREINSTALL_SCRIPT=deb/pre-install.sh
@@ -20,22 +22,24 @@ COMMON_FPM_ARGS=\
 	--maintainer $(MAINTAINER) \
 	--description $(DESCRIPTION) \
 	--config-files=/opt/$(NAME)/ \
-	--verbose
+	--verbose \
+	-a $(ARCH_FPM)
 
-default: build package
+#export ARCH=$(ARCH)
+#export CROSS_COMPILE=$(CROSS_COMPILE)
 
+default: build
+ 
+build: build_Blowfish build_RHF0M301 build_RAK831 build_RAK2245  
 
-install_fpm:
-	sudo apt-get install ruby2.3 ruby2.3-dev rubygems:any build-essential
-	sudo gem install --no-ri --no-rdoc fpm
-	fpm --version
-
-build: force
-
-	@echo "Compiling source"
+compile_%:
+	@echo "Compiling $(NAME)-$(VERSION)-$(BOARD)\t at $(SPI_SPEED) SPI Bus"
 	@cd lora_gateway; make clean; make
 	@cd packet_forwarder; make clean; make
 
+copy_%:
+	@echo "Copying $(NAME)-$(VERSION)-$(BOARD)\t at $(SPI_SPEED) SPI Bus"
+	
 	@mkdir -p bin
 	@mkdir -p bin/tests
 	@mkdir -p bin/utils
@@ -59,22 +63,49 @@ build: force
 	@cp packet_forwarder/util_sink/util_sink bin/utils
 	@cp packet_forwarder/util_tx_test/util_tx_test bin/utils
 
-	@$(foreach board, $(BOARDS), \
-	mkdir -p $(WORK_DIR)/$(board)/opt/$(NAME); \
-	rm -r $(WORK_DIR)/$(board)/opt/$(NAME)/bin; \
-	cp -r bin $(WORK_DIR)/$(board)/opt/$(NAME);)
+	@rm -r $(WORK_DIR)/$(BOARD)/opt/$(NAME)/bin
+	@cp -r bin $(WORK_DIR)/$(BOARD)/opt/$(NAME)
 
 	@rm -r bin
-force:
 
-package:
-	@echo "\n"
-	@$(foreach board, $(BOARDS), \
-	echo Building $(NAME)-$(VERSION)-$(board); \
-	fpm -s dir -t deb -C $(WORK_DIR)/$(board) --version $(VERSION)-$(board) $(COMMON_FPM_ARGS) $(foreach dep,$(DEPS),-d $(dep);); \
-	echo "\n"; )
-	mv $(NAME)_$(VERSION)-*.deb build/
+package_%:
+	@echo "Packaging $(NAME)-$(VERSION)-$(BOARD)\t at $(SPI_SPEED) SPI Bus"
+	fpm -s dir -t deb -C $(WORK_DIR)/$(BOARD) --version $(VERSION)-$(BOARD) $(COMMON_FPM_ARGS) $(foreach dep,$(DEPS),-d $(dep);)
+	@mkdir -p build
+	mv $(NAME)_$(VERSION)-$(BOARD)*.deb build/
 
-rm:
-	@$(foreach board, $(BOARDS), \
-	rm -R src/$(board)/opt/oc-lora-gw-pf-dev/bin/;)
+echo_%:
+	@touch makefile_clean
+	@echo "Echo $(NAME)-$(VERSION)-$(BOARD)\t at $(SPI_SPEED) SPI Bus"
+
+build_Blowfish: export BOARD=Blowfish
+build_Blowfish: export SPI_SPEED=6500000
+build_Blowfish: export DEBUG_OPR=1
+build_Blowfish: echo_Blowfish
+build_Blowfish: compile_Blowfish
+build_Blowfish: copy_Blowfish
+build_Blowfish: package_Blowfish
+
+build_RHF0M301: export BOARD=RHF0M301
+build_RHF0M301: export SPI_SPEED=6500000
+build_RHF0M301: export DEBUG_OPR=1
+build_RHF0M301: echo_RHF0M301
+build_RHF0M301: compile_RHF0M301
+build_RHF0M301: copy_RHF0M301
+build_RHF0M301: package_RHF0M301
+
+build_RAK831: export BOARD=RAK831
+build_RAK831: export SPI_SPEED=6500000
+build_RAK831: export DEBUG_OPR=1
+build_RAK831: echo_RAK831
+build_RAK831: compile_RAK831
+build_RAK831: copy_RAK831
+build_RAK831: package_RAK831
+
+build_RAK2245: export BOARD=RAK2245
+build_RAK2245: export SPI_SPEED=2000000
+build_RAK2245: export DEBUG_OPR=1
+build_RAK2245: echo_RAK2245
+build_RAK2245: compile_RAK2245
+build_RAK2245: copy_RAK2245
+build_RAK2245: package_RAK2245

@@ -5,10 +5,13 @@ include library.cfg
 
 ### constant symbols
 
+SPI_SPEED ?= 6000000
+
 ARCH ?=
 CROSS_COMPILE ?=
 CC := $(CROSS_COMPILE)gcc
 AR := $(CROSS_COMPILE)ar
+
 
 CFLAGS := -O2 -Wall -Wextra -std=c99 -Iinc -I.
 
@@ -48,6 +51,8 @@ inc/config.h: ../VERSION library.cfg
 	@echo "	#define DEBUG_GPS	$(DEBUG_GPS)" >> $@
 	@echo "	#define DEBUG_GPIO	$(DEBUG_GPIO)" >> $@
 	@echo "	#define DEBUG_LBT	$(DEBUG_LBT)" >> $@
+	@echo "	#define SPI_SPEED	$(SPI_SPEED)" >> $@
+	@echo "	#define DEBUG_OPR   $(DEBUG_OPR)" >> $@
 	# end of file
 	@echo "#endif" >> $@
 	@echo "*** Configuration seems ok ***"

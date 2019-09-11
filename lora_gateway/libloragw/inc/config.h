@@ -8,4 +8,6 @@
 	#define DEBUG_GPS	0
 	#define DEBUG_GPIO	
 	#define DEBUG_LBT	0
+	#define SPI_SPEED	2000000
+	#define DEBUG_OPR   1
 #endif
