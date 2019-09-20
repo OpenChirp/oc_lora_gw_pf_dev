@@ -1,5 +1,5 @@
 [Unit]
-Description=RAK831 packet forwarder
+Description=OpenChirp.io RAK831 packet forwarder
 Wants=network-online.target
 After=network-online.target
 
@@ -10,11 +10,11 @@ Restart=always
 RestartSec=250ms
 StartLimitBurst=0
 
-WorkingDirectory=/opt/oc-lora-gw-pf-dev/configs
+WorkingDirectory=/opt/oc-lora-gw-pf/configs
 
-ExecStartPre=/opt/oc-lora-gw-pf-dev/scripts/gwrst.sh
-ExecStartPre=/opt/oc-lora-gw-pf-dev/scripts/update_gwid.sh /opt/oc-lora-gw-pf-dev/configs/local_conf.json
-ExecStart=/opt/oc-lora-gw-pf-dev/bin/lora_pkt_fwd
+ExecStartPre=/opt/oc-lora-gw-pf/scripts/gwrst.sh
+ExecStartPre=/opt/oc-lora-gw-pf/scripts/update_gwid.sh /opt/oc-lora-gw-pf/configs/local_conf.json
+ExecStart=/opt/oc-lora-gw-pf/bin/lora_pkt_fwd
 Nice=-20
 
 [Install]

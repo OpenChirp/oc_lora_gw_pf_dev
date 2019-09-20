@@ -3,7 +3,7 @@ VERSION=0.06
 MAINTAINER='Artur Balanuta'
 DEPS :=
 WORK_DIR=src
-DESCRIPTION='Openchirp LoRa gateway Packet Forwarder'
+DESCRIPTION='OpenChirp.io LoRa gateway Packet Forwarder'
 
 ARCH_FPM=armhf
 # ARCH=arm

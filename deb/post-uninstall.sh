@@ -1,6 +1,6 @@
 #!/bin/bash
 
-NAME=oc-lora-gw-pf-dev
+NAME=oc-lora-gw-pf
 
 systemctl stop $NAME
 systemctl disable $NAME

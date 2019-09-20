@@ -1,6 +1,6 @@
 #!/bin/bash
 
-NAME=oc-lora-gw-pf-dev
+NAME=oc-lora-gw-pf
 
 # eanble SPI interface
 raspi-config nonint do_spi 0
