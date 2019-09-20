@@ -1,27 +1,4 @@
 build/*.deb
 
-src/Blowfish/opt/oc-lora-gw-pf-dev/bin/
-src/RAK831/opt/oc-lora-gw-pf-dev/bin/
-src/RAK2245/opt/oc-lora-gw-pf-dev/bin/
-src/RHF0M301/opt/oc-lora-gw-pf-dev/bin/
-
-lora_gateway/libloragw/libloragw.a
-lora_gateway/libloragw/test_loragw_cal
-lora_gateway/libloragw/test_loragw_gps
-lora_gateway/libloragw/test_loragw_hal
-lora_gateway/libloragw/test_loragw_reg
-lora_gateway/libloragw/test_loragw_spi
-
-lora_gateway/util_pkt_logger/util_pkt_logger
-lora_gateway/util_tx_continuous/util_tx_continuous
-lora_gateway/util_tx_test/util_tx_test
-lora_gateway/util_spi_stress/util_spi_stress
-lora_gateway/util_lbt_test/util_lbt_test
-lora_gateway/util_spectral_scan/util_spectral_scan
-
-packet_forwarder/lora_pkt_fwd/lora_pkt_fwd
-packet_forwarder/util_ack/util_ack
-packet_forwarder/util_sink/util_sink
-packet_forwarder/util_tx_test/util_tx_test
 src/RAK2245/fs_root/opt/oc-lora-gw-pf/bin/
 src/RAK831/fs_root/opt/oc-lora-gw-pf/bin/

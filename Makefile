@@ -37,14 +37,14 @@ ORANGE_COLOR=\e[33;01m
 default: build
  
 build: RAK831 RAK831_OPR RAK2245 RAK2245_OPR
-
-#build_RHF0M301 build_RAK831 build_RAK2245  
+#RHF0M301 Blowfish
 
 %_echo:
 	@touch makefile_clean
 	@echo "$(GREEN_COLOR)"
 	@echo "Echo $(NAME)-$(VERSION)-$(BOARD)\t at $(SPI_SPEED) SPI Bus and DEBUG_OPR=$(DEBUG_OPR)"
 	@echo "$(NO_COLOR)"
+	@rm makefile_clean
 
 %_compile:
 	@echo "$(GREEN_COLOR)"
@@ -147,5 +147,5 @@ RAK831_OPR: export SPI_SPEED=6500000
 RAK831_OPR: export DEBUG_OPR=1
 RAK831_OPR: RAK831_OPR_echo
 RAK831_OPR: RAK831_OPR_compile
-RAK831_OPR: RAK831_OPR_compile
+RAK831_OPR: RAK831_OPR_copy
 RAK831_OPR: RAK831_OPR_package
