@@ -1,3 +1,6 @@
+.DS_Store
+.vscode/settings.json
+
 build/*.deb
 
 src/RAK2245/fs_root/opt/oc-lora-gw-pf/bin/

@@ -2,41 +2,49 @@
 
 ## Install Procedure
 
-
+## Standard version
 ```
 #RAK2245
 curl -s https://api.github.com/repos/OpenChirp/oc_lora_gw_pf_dev/releases/latest \
-| grep "browser_download_url.*RAK2245.*deb" \
+| grep "browser_download_url.*RAK2245_armhf.*deb" \
 | cut -d : -f 2,3 \
 | tr -d \" \
 | wget -i -
 
 #RAK831
 curl -s https://api.github.com/repos/OpenChirp/oc_lora_gw_pf_dev/releases/latest \
-| grep "browser_download_url.*RAK831.*deb" \
+| grep "browser_download_url.*RAK831_armhf.*deb" \
 | cut -d : -f 2,3 \
 | tr -d \" \
 | wget -i -
-
-#RHF0M301
-curl -s https://api.github.com/repos/OpenChirp/oc_lora_gw_pf_dev/releases/latest \
-| grep "browser_download_url.*RHF0M301.*deb" \
-| cut -d : -f 2,3 \
-| tr -d \" \
-| wget -i -
-
-# Blowfish
-curl -s https://api.github.com/repos/OpenChirp/oc_lora_gw_pf_dev/releases/latest \
-| grep "browser_download_url.*Blowfish.*deb" \
-| cut -d : -f 2,3 \
-| tr -d \" \
-| wget -i -
-
 
 sudo apt update
-sudo dpkg -i oc-lora-gw-pf-dev_*.debsudo dpkg -i oc-lora-gw-pf-dev_*.deb
+sudo dpkg -i oc-lora-gw-pf_*.deb
 sudo apt-get install -fy
-rm oc-lora-gw-pf-dev*.deb
+rm oc-lora-gw-pf_*.deb
+
+```
+
+### OPR Version
+```
+#RAK2245
+curl -s https://api.github.com/repos/OpenChirp/oc_lora_gw_pf_dev/releases/latest \
+| grep "browser_download_url.*RAK2245-OPR.*deb" \
+| cut -d : -f 2,3 \
+| tr -d \" \
+| wget -i -
+
+#RAK831
+curl -s https://api.github.com/repos/OpenChirp/oc_lora_gw_pf_dev/releases/latest \
+| grep "browser_download_url.*RAK831-OPR.*deb" \
+| cut -d : -f 2,3 \
+| tr -d \" \
+| wget -i -
+
+sudo apt update
+sudo dpkg -i oc-lora-gw-pf_*.deb
+sudo apt-get install -fy
+rm oc-lora-gw-pf_*.deb
 
 ```
 
