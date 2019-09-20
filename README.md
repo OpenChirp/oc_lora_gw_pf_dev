@@ -2,7 +2,7 @@
 
 ## Install Procedure
 
-## Standard version
+### Standard version
 ```
 #RAK2245
 curl -s https://api.github.com/repos/OpenChirp/oc_lora_gw_pf_dev/releases/latest \
