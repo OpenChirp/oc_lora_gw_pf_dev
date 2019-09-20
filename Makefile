@@ -1,5 +1,5 @@
-NAME=oc-lora-gw-pf-dev
-VERSION=0.05-dev
+NAME=oc-lora-gw-pf
+VERSION=0.06
 MAINTAINER='Artur Balanuta'
 DEPS :=
 WORK_DIR=src
@@ -28,84 +28,124 @@ COMMON_FPM_ARGS=\
 #export ARCH=$(ARCH)
 #export CROSS_COMPILE=$(CROSS_COMPILE)
 
+NO_COLOR = \e[0m
+BLUE_COLOR = \e[1;34m
+GREEN_COLOR=\e[32;01m
+RED_COLOR=\e[31;01m
+ORANGE_COLOR=\e[33;01m
+
 default: build
  
-build: build_Blowfish build_RHF0M301 build_RAK831 build_RAK2245  
+build: RAK831 RAK831_OPR RAK2245 RAK2245_OPR
 
-compile_%:
-	@echo "Compiling $(NAME)-$(VERSION)-$(BOARD)\t at $(SPI_SPEED) SPI Bus"
-	@cd lora_gateway; make clean; make
-	@cd packet_forwarder; make clean; make
+#build_RHF0M301 build_RAK831 build_RAK2245  
 
-copy_%:
-	@echo "Copying $(NAME)-$(VERSION)-$(BOARD)\t at $(SPI_SPEED) SPI Bus"
-	
-	@mkdir -p bin
-	@mkdir -p bin/tests
-	@mkdir -p bin/utils
+%_echo:
+	@touch makefile_clean
+	@echo "$(GREEN_COLOR)"
+	@echo "Echo $(NAME)-$(VERSION)-$(BOARD)\t at $(SPI_SPEED) SPI Bus and DEBUG_OPR=$(DEBUG_OPR)"
+	@echo "$(NO_COLOR)"
 
-	@cp packet_forwarder/lora_pkt_fwd/lora_pkt_fwd bin
+%_compile:
+	@echo "$(GREEN_COLOR)"
+	@echo "Compiling $(NAME)-$(VERSION)-$(BOARD)\t at $(SPI_SPEED) SPI Bus and DEBUG_OPR=$(DEBUG_OPR)"
+	@echo "$(NO_COLOR)"	
 
-	@cp lora_gateway/libloragw/test_loragw_cal bin/tests
-	@cp lora_gateway/libloragw/test_loragw_gps bin/tests
-	@cp lora_gateway/libloragw/test_loragw_hal bin/tests
-	@cp lora_gateway/libloragw/test_loragw_reg bin/tests
-	@cp lora_gateway/libloragw/test_loragw_spi bin/tests
+	cd src/$(BOARD); \
+	rm -rf lora_gateway; \
+	git clone https://github.com/Lora-net/lora_gateway.git; \
+	cd lora_gateway; \
+	cp ../config/library.cfg ./libloragw/library.cfg; \
+	cp ../config/loragw_hal_opr.c ./libloragw/src/loragw_hal.c; \
+	echo "DEBUG_OPR= $(DEBUG_OPR)" >> ./libloragw/library.cfg; \
+	perl -pi -e 's/#define SPI_SPEED\s+\d+/#define SPI_SPEED       $(SPI_SPEED)/g' ./libloragw/src/loragw_spi.native.c;	
+	cd src/$(BOARD)/lora_gateway; make
 
-	@cp lora_gateway/util_lbt_test/util_lbt_test bin/utils
-	@cp lora_gateway/util_pkt_logger/util_pkt_logger bin/utils
-	@cp lora_gateway/util_spectral_scan/util_spectral_scan bin/utils
-	@cp lora_gateway/util_spi_stress/util_spi_stress bin/utils
-	@cp lora_gateway/util_tx_continuous/util_tx_continuous bin/utils
-	@cp lora_gateway/util_tx_test/util_tx_test bin/utils
+	cd src/$(BOARD); \
+	rm -rf packet_forwarder; \
+	git clone https://github.com/Lora-net/packet_forwarder.git; \
+	cd packet_forwarder; \
+	cp ../config/lora_pkt_fwd.c ./lora_pkt_fwd/src/lora_pkt_fwd.c; \
+	make
 
-	@cp packet_forwarder/util_ack/util_ack bin/utils
-	@cp packet_forwarder/util_sink/util_sink bin/utils
-	@cp packet_forwarder/util_tx_test/util_tx_test bin/utils
+%_copy:
+	@echo "$(GREEN_COLOR)"
+	@echo "Copying $(NAME)-$(VERSION)-$(BOARD)\t at $(SPI_SPEED) SPI Bus and DEBUG_OPR=$(DEBUG_OPR)"
+	@echo "$(NO_COLOR)"
 
-	@rm -r $(WORK_DIR)/$(BOARD)/opt/$(NAME)/bin
-	@cp -r bin $(WORK_DIR)/$(BOARD)/opt/$(NAME)
+	cd src/$(BOARD); mkdir -p bin bin/tests bin/utils
 
-	@rm -r bin
+	@cp src/$(BOARD)/packet_forwarder/lora_pkt_fwd/lora_pkt_fwd src/$(BOARD)/bin
+	@cp src/$(BOARD)/lora_gateway/libloragw/test_loragw_* src/$(BOARD)/bin/tests
 
-package_%:
-	@echo "Packaging $(NAME)-$(VERSION)-$(BOARD)\t at $(SPI_SPEED) SPI Bus"
-	fpm -s dir -t deb -C $(WORK_DIR)/$(BOARD) --version $(VERSION)-$(BOARD) $(COMMON_FPM_ARGS) $(foreach dep,$(DEPS),-d $(dep);)
+	@cp src/$(BOARD)/lora_gateway/util_lbt_test/util_lbt_test src/$(BOARD)/bin/utils
+	@cp src/$(BOARD)/lora_gateway/util_pkt_logger/util_pkt_logger src/$(BOARD)/bin/utils
+	@cp src/$(BOARD)/lora_gateway/util_spectral_scan/util_spectral_scan src/$(BOARD)/bin/utils
+	@cp src/$(BOARD)/lora_gateway/util_spi_stress/util_spi_stress src/$(BOARD)/bin/utils
+	@cp src/$(BOARD)/lora_gateway/util_tx_continuous/util_tx_continuous src/$(BOARD)/bin/utils
+	@cp src/$(BOARD)/lora_gateway/util_tx_test/util_tx_test src/$(BOARD)/bin/utils
+
+	@cp src/$(BOARD)/packet_forwarder/util_ack/util_ack src/$(BOARD)/bin/utils
+	@cp src/$(BOARD)/packet_forwarder/util_sink/util_sink src/$(BOARD)/bin/utils
+	@cp src/$(BOARD)/packet_forwarder/util_tx_test/util_tx_test src/$(BOARD)/bin/utils
+
+	rm -rf src/$(BOARD)/fs_root/opt/$(NAME)/bin
+	cp -r src/$(BOARD)/bin src/$(BOARD)/fs_root/opt/$(NAME)
+
+	rm -rf src/$(BOARD)/bin
+	rm -rf src/$(BOARD)/lora_gateway
+	rm -rf src/$(BOARD)/packet_forwarder
+
+%_package:
+	@echo "$(GREEN_COLOR)"
+	@echo "Packaging $(NAME)-$(VERSION)-$(BOARD)\t at $(SPI_SPEED) SPI Bus and DEBUG_OPR=$(DEBUG_OPR)"
+	@echo "$(NO_COLOR)"
+
+	if [ $(DEBUG_OPR) -eq 0 ]; \
+	then fpm -s dir -t deb -C src/$(BOARD)/fs_root --version $(VERSION)-$(BOARD) $(COMMON_FPM_ARGS) $(foreach dep,$(DEPS),-d $(dep);); \
+	else fpm -s dir -t deb -C src/$(BOARD)/fs_root --version $(VERSION)-$(BOARD)-OPR $(COMMON_FPM_ARGS) $(foreach dep,$(DEPS),-d $(dep);); \
+	fi;
+
 	@mkdir -p build
 	mv $(NAME)_$(VERSION)-$(BOARD)*.deb build/
 
-echo_%:
-	@touch makefile_clean
-	@echo "Echo $(NAME)-$(VERSION)-$(BOARD)\t at $(SPI_SPEED) SPI Bus"
+# build_RHF0M301: export BOARD=RHF0M301
+# build_RHF0M301: export SPI_SPEED=6500000
+# build_RHF0M301: export DEBUG_OPR=1
+# build_RHF0M301: echo_RHF0M301
+# build_RHF0M301: compile_RHF0M301
+# build_RHF0M301: copy_RHF0M301
+# build_RHF0M301: package_RHF0M301
 
-build_Blowfish: export BOARD=Blowfish
-build_Blowfish: export SPI_SPEED=6500000
-build_Blowfish: export DEBUG_OPR=1
-build_Blowfish: echo_Blowfish
-build_Blowfish: compile_Blowfish
-build_Blowfish: copy_Blowfish
-build_Blowfish: package_Blowfish
+RAK2245: export BOARD=RAK2245
+RAK2245: export SPI_SPEED=2000000
+RAK2245: export DEBUG_OPR=0
+RAK2245: RAK2245_echo
+RAK2245: RAK2245_compile
+RAK2245: RAK2245_copy
+RAK2245: RAK2245_package
 
-build_RHF0M301: export BOARD=RHF0M301
-build_RHF0M301: export SPI_SPEED=6500000
-build_RHF0M301: export DEBUG_OPR=1
-build_RHF0M301: echo_RHF0M301
-build_RHF0M301: compile_RHF0M301
-build_RHF0M301: copy_RHF0M301
-build_RHF0M301: package_RHF0M301
+RAK2245_OPR: export BOARD=RAK2245
+RAK2245_OPR: export SPI_SPEED=2000000
+RAK2245_OPR: export DEBUG_OPR=1
+RAK2245_OPR: RAK2245_OPR_echo
+RAK2245_OPR: RAK2245_OPR_compile
+RAK2245_OPR: RAK2245_OPR_copy
+RAK2245_OPR: RAK2245_OPR_package
 
-build_RAK831: export BOARD=RAK831
-build_RAK831: export SPI_SPEED=6500000
-build_RAK831: export DEBUG_OPR=1
-build_RAK831: echo_RAK831
-build_RAK831: compile_RAK831
-build_RAK831: copy_RAK831
-build_RAK831: package_RAK831
 
-build_RAK2245: export BOARD=RAK2245
-build_RAK2245: export SPI_SPEED=2000000
-build_RAK2245: export DEBUG_OPR=1
-build_RAK2245: echo_RAK2245
-build_RAK2245: compile_RAK2245
-build_RAK2245: copy_RAK2245
-build_RAK2245: package_RAK2245
+RAK831: export BOARD=RAK831
+RAK831: export SPI_SPEED=6500000
+RAK831: export DEBUG_OPR=0
+RAK831: RAK831_echo
+RAK831: RAK831_compile
+RAK831: RAK831_copy
+RAK831: RAK831_package
+
+RAK831_OPR: export BOARD=RAK831
+RAK831_OPR: export SPI_SPEED=6500000
+RAK831_OPR: export DEBUG_OPR=1
+RAK831_OPR: RAK831_OPR_echo
+RAK831_OPR: RAK831_OPR_compile
+RAK831_OPR: RAK831_OPR_compile
+RAK831_OPR: RAK831_OPR_package
