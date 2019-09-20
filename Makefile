@@ -55,11 +55,13 @@ build: RAK831 RAK831_OPR RAK2245 RAK2245_OPR
 	rm -rf lora_gateway; \
 	git clone https://github.com/Lora-net/lora_gateway.git; \
 	cd lora_gateway; \
-	cp ../config/library.cfg ./libloragw/library.cfg; \
 	cp ../config/loragw_hal_opr.c ./libloragw/src/loragw_hal.c; \
-	echo "DEBUG_OPR= $(DEBUG_OPR)" >> ./libloragw/library.cfg; \
-	perl -pi -e 's/#define SPI_SPEED\s+\d+/#define SPI_SPEED       $(SPI_SPEED)/g' ./libloragw/src/loragw_spi.native.c;	
-	cd src/$(BOARD)/lora_gateway; make
+	cp ../config/library.cfg ./libloragw/library.cfg; \
+	perl -pi -e 's/#define DEBUG_OPR\s+\d+/#define DEBUG_OPR $(DEBUG_OPR)/g' ./libloragw/src/loragw_hal.c; \
+	perl -pi -e 's/#define SPI_SPEED\s+\d+/#define SPI_SPEED $(SPI_SPEED)/g' ./libloragw/src/loragw_hal.c; \
+	perl -pi -e 's/#define SPI_SPEED\s+\d+/#define SPI_SPEED $(SPI_SPEED)/g' ./libloragw/src/loragw_spi.native.c; \
+	cd src/$(BOARD)/lora_gateway; \
+	make
 
 	cd src/$(BOARD); \
 	rm -rf packet_forwarder; \
@@ -135,7 +137,7 @@ RAK2245_OPR: RAK2245_OPR_package
 
 
 RAK831: export BOARD=RAK831
-RAK831: export SPI_SPEED=6500000
+RAK831: export SPI_SPEED=6000000
 RAK831: export DEBUG_OPR=0
 RAK831: RAK831_echo
 RAK831: RAK831_compile
@@ -143,7 +145,7 @@ RAK831: RAK831_copy
 RAK831: RAK831_package
 
 RAK831_OPR: export BOARD=RAK831
-RAK831_OPR: export SPI_SPEED=6500000
+RAK831_OPR: export SPI_SPEED=6000000
 RAK831_OPR: export DEBUG_OPR=1
 RAK831_OPR: RAK831_OPR_echo
 RAK831_OPR: RAK831_OPR_compile

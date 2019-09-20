@@ -36,6 +36,12 @@ Maintainer: Sylvain Miermont
 /* -------------------------------------------------------------------------- */
 /* --- PRIVATE MACROS ------------------------------------------------------- */
 
+#define DEBUG_OPR 0
+#define SPI_SPEED 0
+
+#define STR_HELPER(x) #x
+#define STR(x) STR_HELPER(x)
+
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
 #if DEBUG_HAL == 1
     #define DEBUG_MSG(str)                fprintf(stderr, str)
@@ -50,9 +56,9 @@ Maintainer: Sylvain Miermont
 #endif
 
 #if DEBUG_OPR == 1
-    #define DEBUG_OPR(str, ...)        printf(str, ##__VA_ARGS__)
+    #define DEBUG_OPR_PRINTF(str, ...)        printf(str, ##__VA_ARGS__)
 #else
-    #define DEBUG_OPR(str, ...)
+    #define DEBUG_OPR_PRINTF(str, ...)
 #endif
 
 #define IF_HZ_TO_REG(f)     (f << 5)/15625
@@ -99,7 +105,7 @@ Maintainer: Sylvain Miermont
 const uint8_t ifmod_config[LGW_IF_CHAIN_NB] = LGW_IFMODEM_CONFIG;
 
 /* Version string, used to identify the library version/options once compiled */
-const char lgw_version_string[] = "Version: " LIBLORAGW_VERSION ";";
+const char lgw_version_string[] = "Version: " LIBLORAGW_VERSION " SPI_SPEED: " STR(SPI_SPEED) " OPR: " STR(DEBUG_OPR) ";";
 
 /* -------------------------------------------------------------------------- */
 /* --- PRIVATE VARIABLES ---------------------------------------------------- */
@@ -1094,6 +1100,8 @@ int lgw_start(void) {
         wait_ms(8400);
     }
 
+    DEBUG_OPR_PRINTF("INFO: OPR debugging Enabled\n");
+
     lgw_is_started = true;
     return LGW_HAL_SUCCESS;
 }
@@ -1200,15 +1208,15 @@ int lgw_receive(uint8_t max_pkt, struct lgw_pkt_rx_s *pkt_data) {
     	strftime(ts_buff, sizeof ts_buff, "%z", ts_timeinfo);
 #endif
 
-    	DEBUG_OPR("# OPR |%s.%09ld %s| ", ts_bufi, ts_ns, ts_buff);
-        DEBUG_OPR("size_bytes:%i ", p->size);
+    	DEBUG_OPR_PRINTF("# OPR |%s.%09ld %s| ", ts_bufi, ts_ns, ts_buff);
+        DEBUG_OPR_PRINTF("size_bytes:%i ", p->size);
 
         p->rf_chain = (uint8_t)if_rf_chain[p->if_chain];
         p->freq_hz = (uint32_t)((int32_t)rf_rx_freq[p->rf_chain] + if_freq[p->if_chain]);
         p->rssi = (float)buff[sz+5] + rf_rssi_offset[p->rf_chain];
 
         // Test
-        DEBUG_OPR("ch:%02i Freq:%03.2f Rssi:%04.0f ", p->rf_chain, (float)p->freq_hz/1000000, p->rssi - RSSI_MULTI_BIAS);
+        DEBUG_OPR_PRINTF("ch:%02i Freq:%03.2f Rssi:%04.0f ", p->rf_chain, (float)p->freq_hz/1000000, p->rssi - RSSI_MULTI_BIAS);
 
 
         if ((ifmod == IF_LORA_MULTI) || (ifmod == IF_LORA_STD)) {
@@ -1218,22 +1226,22 @@ int lgw_receive(uint8_t max_pkt, struct lgw_pkt_rx_s *pkt_data) {
                     p->status = STAT_CRC_OK;
                     crc_en = 1;
                     // Test
-                    DEBUG_OPR("crc: 1 ");
+                    DEBUG_OPR_PRINTF("crc: 1 ");
                     break;
                 case 7:
                     p->status = STAT_CRC_BAD;
                     crc_en = 1;
-                    DEBUG_OPR("crc:-1 ");
+                    DEBUG_OPR_PRINTF("crc:-1 ");
                     break;
                 case 1:
                     p->status = STAT_NO_CRC;
                     crc_en = 0;
-                    DEBUG_OPR("crc: 0 ");
+                    DEBUG_OPR_PRINTF("crc: 0 ");
                     break;
                 default:
                     p->status = STAT_UNDEFINED;
                     crc_en = 0;
-                    DEBUG_OPR("crc: ? ");
+                    DEBUG_OPR_PRINTF("crc: ? ");
             }
             p->modulation = MOD_LORA;
             p->snr = ((float)((int8_t)buff[sz+2]))/4;
@@ -1241,7 +1249,7 @@ int lgw_receive(uint8_t max_pkt, struct lgw_pkt_rx_s *pkt_data) {
             p->snr_max = ((float)((int8_t)buff[sz+4]))/4;
 
             // Test
-            DEBUG_OPR("snr:%06.2f min_snr:%06.2f max_snr:%06.2f ", p->snr, p->snr_min, p->snr_max);
+            DEBUG_OPR_PRINTF("snr:%06.2f min_snr:%06.2f max_snr:%06.2f ", p->snr, p->snr_min, p->snr_max);
 
             if (ifmod == IF_LORA_MULTI) {
                 p->bandwidth = BW_125KHZ; /* fixed in hardware */
@@ -1250,13 +1258,13 @@ int lgw_receive(uint8_t max_pkt, struct lgw_pkt_rx_s *pkt_data) {
             }
             sf = (buff[sz+1] >> 4) & 0x0F;
             switch (sf) {
-                case 7: p->datarate = DR_LORA_SF7; DEBUG_OPR("sf: 7 "); break;
-                case 8: p->datarate = DR_LORA_SF8; DEBUG_OPR("sf: 8 "); break;
-                case 9: p->datarate = DR_LORA_SF9; DEBUG_OPR("sf: 9 "); break;
-                case 10: p->datarate = DR_LORA_SF10; DEBUG_OPR("sf:10 "); break;
-                case 11: p->datarate = DR_LORA_SF11; DEBUG_OPR("sf:11 "); break;
-                case 12: p->datarate = DR_LORA_SF12; DEBUG_OPR("sf:12 "); break;
-                default: p->datarate = DR_UNDEFINED; DEBUG_OPR("sf:err ");
+                case 7: p->datarate = DR_LORA_SF7; DEBUG_OPR_PRINTF("sf: 7 "); break;
+                case 8: p->datarate = DR_LORA_SF8; DEBUG_OPR_PRINTF("sf: 8 "); break;
+                case 9: p->datarate = DR_LORA_SF9; DEBUG_OPR_PRINTF("sf: 9 "); break;
+                case 10: p->datarate = DR_LORA_SF10; DEBUG_OPR_PRINTF("sf:10 "); break;
+                case 11: p->datarate = DR_LORA_SF11; DEBUG_OPR_PRINTF("sf:11 "); break;
+                case 12: p->datarate = DR_LORA_SF12; DEBUG_OPR_PRINTF("sf:12 "); break;
+                default: p->datarate = DR_UNDEFINED; DEBUG_OPR_PRINTF("sf:err ");
             }
             cr = (buff[sz+1] >> 1) & 0x07;
             switch (cr) {
@@ -1266,14 +1274,14 @@ int lgw_receive(uint8_t max_pkt, struct lgw_pkt_rx_s *pkt_data) {
                 case 4: p->coderate = CR_LORA_4_8; break;
                 default: p->coderate = CR_UNDEFINED;
             }
-            DEBUG_OPR("cr:4/%d ", cr+4);
+            DEBUG_OPR_PRINTF("cr:4/%d ", cr+4);
 
             /* determine if 'PPM mode' is on, needed for timestamp correction */
             if (SET_PPM_ON(p->bandwidth,p->datarate)) {
                 ppm = 1;
-                DEBUG_OPR("ppm:1 ");
+                DEBUG_OPR_PRINTF("ppm:1 ");
             } else {
-                DEBUG_OPR("ppm:0 ");
+                DEBUG_OPR_PRINTF("ppm:0 ");
                 ppm = 0;
             }
             
@@ -1372,18 +1380,18 @@ int lgw_receive(uint8_t max_pkt, struct lgw_pkt_rx_s *pkt_data) {
         p->count_us = raw_timestamp - timestamp_correction;
         p->crc = (uint16_t)buff[sz+10] + ((uint16_t)buff[sz+11] << 8);
 #if DEBUG_OPR == 1
-        DEBUG_OPR("crc:%04X ", p->crc);
-        DEBUG_OPR("tmsp:%010u ", raw_timestamp);
-        DEBUG_OPR("diff:%06u ", raw_timestamp - raw_timestamp_old);
+        DEBUG_OPR_PRINTF("crc:%04X ", p->crc);
+        DEBUG_OPR_PRINTF("tmsp:%010u ", raw_timestamp);
+        DEBUG_OPR_PRINTF("diff:%06u ", raw_timestamp - raw_timestamp_old);
         raw_timestamp_old = raw_timestamp;
-        DEBUG_OPR("mID:%02X ", buff[sz+12]);
+        DEBUG_OPR_PRINTF("mID:%02X ", buff[sz+12]);
         //printf("rxMaxBinPos:%03i ", (uint16_t)buff[sz+13] + ((uint16_t)buff[sz+14] << 8) );
-        DEBUG_OPR("rxCorrSNR:%02i ", buff[sz+15]);
+        DEBUG_OPR_PRINTF("rxCorrSNR:%02i ", buff[sz+15]);
 
         for(int i = 0; i < p->size; i++)
-            DEBUG_OPR("%02X", buff[i]);
+            DEBUG_OPR_PRINTF("%02X", buff[i]);
         
-        DEBUG_OPR("\n");
+        DEBUG_OPR_PRINTF("\n");
 #endif
         /* advance packet FIFO */
         lgw_reg_w(LGW_RX_PACKET_DATA_FIFO_NUM_STORED, 0);
