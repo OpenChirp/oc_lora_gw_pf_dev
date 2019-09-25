@@ -1,5 +1,5 @@
 NAME=oc-lora-gw-pf
-VERSION=0.06
+VERSION=0.07
 MAINTAINER='Artur Balanuta'
 DEPS :=
 WORK_DIR=src
