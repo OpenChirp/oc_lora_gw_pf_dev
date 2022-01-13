@@ -50,6 +50,15 @@ rm oc-lora-gw-pf_*.deb
 
 # Pins
 
+## RAK2287 (through [RAK Pi HAT](https://docs.rakwireless.com/Product-Categories/WisHat/RAK2287-RAK5146-Pi-HAT/Datasheet/#overview))
+	- RESET_PIN 11 	GPIO17(GPIO_GEN0) Connect to SX1302’s RESET PIN, SX1302
+	- Built in SPI0 (pin 19,21 24 23) to SX1302
+	- GPS_RESET_PIN 22 		GPIO25(GPIO_GEN6)
+	- Pin 26 GPIO7(SPI_CE1_N)	GPIO(6)_SX1302	IO	Connect to SX1302’s GPIO[6]
+	- Pin 8  GPIO14(TXD0)		UART_RXD_ZOE-M8Q	DI	Connect RAK2287 built in GPS Module (ZOE-M8Q)’s UART_RXD
+	- Pin 10 GPIO15(RXD0)		UART_TXD_ZOE-M8Q	DO	Connect to RAK2287 built in GPS Module (ZOE-M8Q)’s UART_TXD
+	- Pin 32	GPIO12	STANDBY_GPS_ZOE-M8Q	DI	Connect to RAK2287 built in GPS Module (ZOE-M8Q)’s STANDBY, GPS module ZOE-M8Q external interrupt input, Active low
+
 ## Blowfish
 	- RESET_PIN 5
 	- GPS Reset line - run to GPIO6(pin31)	
