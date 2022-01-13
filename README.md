@@ -35,7 +35,7 @@ rm oc-lora-gw-pf_*.deb
 # Pins
 
 ## RAK2287 (through [RAK Pi HAT](https://docs.rakwireless.com/Product-Categories/WisHat/RAK2287-RAK5146-Pi-HAT/Datasheet/#overview))
-	- RESET_PIN 11 	GPIO17(GPIO_GEN0) Connect to SX1302’s RESET PIN, SX1302
+	- RESET_PIN 17 	(13) Connect to SX1302’s RESET PIN, SX1302
 	- Built in SPI0 (pin 19,21 24 23) to SX1302
 	- GPS_RESET_PIN 22 		GPIO25(GPIO_GEN6)
 	- Pin 26 GPIO7(SPI_CE1_N)	GPIO(6)_SX1302	IO	Connect to SX1302’s GPIO[6]
