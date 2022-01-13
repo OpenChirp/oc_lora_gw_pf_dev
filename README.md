@@ -4,6 +4,13 @@
 
 ### Standard version
 ```
+#RAK2287
+curl -s https://api.github.com/repos/OpenChirp/oc_lora_gw_pf_dev/releases/latest \
+| grep "browser_download_url.*RAK2287_armhf.*deb" \
+| cut -d : -f 2,3 \
+| tr -d \" \
+| wget -i -
+
 #RAK2245
 curl -s https://api.github.com/repos/OpenChirp/oc_lora_gw_pf_dev/releases/latest \
 | grep "browser_download_url.*RAK2245_armhf.*deb" \
@@ -14,29 +21,6 @@ curl -s https://api.github.com/repos/OpenChirp/oc_lora_gw_pf_dev/releases/latest
 #RAK831
 curl -s https://api.github.com/repos/OpenChirp/oc_lora_gw_pf_dev/releases/latest \
 | grep "browser_download_url.*RAK831_armhf.*deb" \
-| cut -d : -f 2,3 \
-| tr -d \" \
-| wget -i -
-
-sudo apt update
-sudo dpkg -i oc-lora-gw-pf_*.deb
-sudo apt-get install -fy
-rm oc-lora-gw-pf_*.deb
-
-```
-
-### OPR Version
-```
-#RAK2245
-curl -s https://api.github.com/repos/OpenChirp/oc_lora_gw_pf_dev/releases/latest \
-| grep "browser_download_url.*RAK2245-OPR.*deb" \
-| cut -d : -f 2,3 \
-| tr -d \" \
-| wget -i -
-
-#RAK831
-curl -s https://api.github.com/repos/OpenChirp/oc_lora_gw_pf_dev/releases/latest \
-| grep "browser_download_url.*RAK831-OPR.*deb" \
 | cut -d : -f 2,3 \
 | tr -d \" \
 | wget -i -
