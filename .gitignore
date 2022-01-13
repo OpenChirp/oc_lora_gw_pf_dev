@@ -5,4 +5,4 @@ build/*.deb
 
 src/RAK2245/fs_root/opt/oc-lora-gw-pf/bin/
 src/RAK831/fs_root/opt/oc-lora-gw-pf/bin/
-src/RAK2287/fs_root/opt/oc-lora-gw-pf/
+src/RAK2287/fs_root/opt/oc-lora-gw-pf/bin/
