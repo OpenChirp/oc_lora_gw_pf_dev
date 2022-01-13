@@ -50,7 +50,7 @@ rm oc-lora-gw-pf_*.deb
 	- GPS UART (UART0-pin8,10)
 	- 1PPS is connected to the GPIO4-pin7
 
-## RAK2243
+## [RAK2243](https://docs.rakwireless.com/Product-Categories/WisLink/RAK2245-Pi-HAT/Overview/)
 	- RESET_PIN 17 (13)
 
 ## RAK831
